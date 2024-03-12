@@ -4,8 +4,9 @@ class Program
     static void Main(string[] args)
     {
         var generator = new ProblemGenerator(123);
-        var array = generator.GenerateArray(5, 10, 10);
-        var cArray = generator.GetCharArray();
+        var (array, cArray) = generator.GetProblem(10, 20, 5);
+        var (array2, cArray2) = generator.GetProblem(10, 20, 5);
+
         foreach (var s in array)
         {
             Console.WriteLine(s);
@@ -14,5 +15,18 @@ class Program
         {
             Console.Write(c);
         }
+
+        Console.WriteLine("----");
+        foreach (var s in array2)
+        {
+            Console.WriteLine(s);
+        }
+        foreach (var c in cArray2)
+        {
+            Console.Write(c);
+        }
+
     }
 }
+
+// todo: asd
