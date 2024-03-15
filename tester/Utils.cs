@@ -1,8 +1,29 @@
 
+using Xunit;
+using System.Linq;
+using MatCom.Examen;
+using System.Collections.Generic;
+using System;
+using System.IO;
 using System.Text;
 using System.Text.Json;
+namespace MatCom.Tester;
 
-namespace Tester;
+public enum TestType
+{
+    SolvingProblems,
+    EmptyCharArray,
+    EmptyWords
+}
+
+public static class Utils
+{
+    public static string SolveProblem(string[] words, char[] c)
+    {
+        return JaimesCurse.Solve(words, c);
+    }
+}
+
 public class ProblemGenerator
 {
     public int Seed { get; }
@@ -30,20 +51,20 @@ public class ProblemGenerator
         return result.ToString();
     }
 
-    private string[] GenerateArray(int minStringSize, int maxStringSize, int arraySize)
+    private string[] GenerateArray(int minStringSize, int maxStringSize, int maxArraySize)
     {
-        var result = new string[arraySize];
-        for (int i = 0; i < arraySize; i++)
+        int size = new Random(Seed).Next(1, maxArraySize);
+        var result = new string[size];
+        for (int i = 0; i < size; i++)
         {
             result[i] = GenerateString(minStringSize, maxStringSize);
         }
         return result;
     }
 
-    private char[] GetCharArray(int aSize = -1)
+    private char[] GetCharArray(int aMaxSize)
     {
-        int maxArraySize = 100;
-        int size = aSize == -1 ? randomCharSelector.Next(0, maxArraySize) : aSize;
+        int size = randomCharSelector.Next(0, aMaxSize);
         char[] result = new char[size];
 
         for (int i = 0; i < size; i++)
@@ -53,7 +74,7 @@ public class ProblemGenerator
         return result;
 
     }
-    public Tuple<string[], char[]> GetProblem(int minStringSize, int maxStringSize, int sArraySize, int cArraySize = -1) => new Tuple<string[], char[]>(GenerateArray(minStringSize, maxStringSize, sArraySize), GetCharArray(cArraySize)!);
+    public Tuple<string[], char[]> GetProblem(int minStringSize, int maxStringSize, int sMaxArraySize, int cMaxArraySize = -1) => new Tuple<string[], char[]>(GenerateArray(minStringSize, maxStringSize, sMaxArraySize), GetCharArray(cMaxArraySize)!);
 }
 
 public class ProblemGestor
@@ -93,5 +114,38 @@ public class ProblemGestor
         data.Add("problems", problems);
         var json = JsonSerializer.Serialize(data);
         File.WriteAllText(path, json);
+    }
+
+    private static string Solve(string[] words, char[] c)
+    {
+        var result = new List<string>(words);
+        var currentWord = 0;
+
+        foreach (var ch in c)
+        {
+            var startIndex = currentWord;
+
+            do
+            {
+                if (result[currentWord].StartsWith(ch))
+                {
+                    result[currentWord] = result[currentWord][1..];
+                    break;
+                }
+                currentWord = (currentWord + 1) % words.Length;
+            } while (startIndex != currentWord);
+        }
+
+        return string.Join("", result);
+    }
+
+    public List<string> GetSolutions()
+    {
+        var results = new List<string>();
+        foreach (var problem in problems)
+        {
+            results.Add(Solve(problem.Item1, problem.Item2));
+        }
+        return results;
     }
 }
