@@ -64,7 +64,7 @@ public class ProblemGenerator
 
     private char[] GetCharArray(int aMaxSize)
     {
-        int size = randomCharSelector.Next(0, aMaxSize);
+        int size = randomCharSelector.Next(1, aMaxSize);
         char[] result = new char[size];
 
         for (int i = 0; i < size; i++)
@@ -94,7 +94,7 @@ public class ProblemGestor
 
         if (problems.Count > 0)
         {
-            return problems;
+            return CloneProblems(problems);
         }
 
         var random = new Random(SeedForLimits);
@@ -103,7 +103,15 @@ public class ProblemGestor
             var generator = new ProblemGenerator(Seed + i);
             problems.Add(generator.GetProblem(minWordSize, maxWordSize, arraySize, cArraySize));
         }
-        return problems;
+        return CloneProblems(problems);
+    }
+
+    private List<Tuple<string[], char[]>> CloneProblems(List<Tuple<string[], char[]>> inProblems)
+    {
+        var result = new List<Tuple<string[], char[]>>();
+        foreach (var element in inProblems)
+            result.Add(element);
+        return result;
     }
 
     public void ExportProblems(string path)
